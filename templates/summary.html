@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}สรุปยอด — บัญชีส่วนตัว{% endblock %}
+{% block content %}
+<h1 class="page-title">สรุปยอด</h1>
+
+<div class="cards">
+  <div class="card income">
+    <div class="card-label">รายรับรวม</div>
+    <div class="card-amount">{{ "%.2f"|format(income) }} บาท</div>
+  </div>
+  <div class="card expense">
+    <div class="card-label">รายจ่ายรวม</div>
+    <div class="card-amount">{{ "%.2f"|format(expense) }} บาท</div>
+  </div>
+  <div class="card balance {% if balance >= 0 %}positive{% else %}negative{% endif %}">
+    <div class="card-label">ยอดคงเหลือ</div>
+    <div class="card-amount">{{ "%.2f"|format(balance) }} บาท</div>
+  </div>
+</div>
+
+{% if monthly %}
+<h2>สรุปรายเดือน</h2>
+<table class="table">
+  <thead>
+    <tr><th>เดือน/ปี</th><th>ประเภท</th><th class="text-right">ยอดรวม</th></tr>
+  </thead>
+  <tbody>
+    {% for row in monthly %}
+    <tr>
+      <td>{{ "%02d/%04d"|format(row.month|int, row.year|int) }}</td>
+      <td><span class="badge {{ row.entry_type }}">{{ "รายการเข้า" if row.entry_type == "income" else "รายการออก" }}</span></td>
+      <td class="text-right {{ row.entry_type }}">{{ "%.2f"|format(row.total) }} บาท</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% if categories %}
+<h2>สรุปตามหมวดหมู่</h2>
+<table class="table">
+  <thead>
+    <tr><th>หมวดหมู่</th><th>ประเภท</th><th class="text-right">ยอดรวม</th></tr>
+  </thead>
+  <tbody>
+    {% for row in categories %}
+    <tr>
+      <td>{{ row.category or "ไม่ระบุหมวดหมู่" }}</td>
+      <td><span class="badge {{ row.entry_type }}">{{ "รายการเข้า" if row.entry_type == "income" else "รายการออก" }}</span></td>
+      <td class="text-right {{ row.entry_type }}">{{ "%.2f"|format(row.total) }} บาท</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% if not monthly and not categories %}
+<p class="empty">ยังไม่มีข้อมูลสรุป — <a href="{{ url_for('main.new_entry') }}">เพิ่มรายการแรก</a></p>
+{% endif %}
+{% endblock %}

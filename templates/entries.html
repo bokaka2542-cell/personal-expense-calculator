@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}รายการทั้งหมด — บัญชีส่วนตัว{% endblock %}
+{% block content %}
+<div class="section-header">
+  <h1 class="page-title">รายการทั้งหมด</h1>
+  <a href="{{ url_for('main.new_entry') }}" class="btn btn-primary">+ เพิ่มรายการ</a>
+</div>
+
+<div class="filter-bar">
+  <a href="{{ url_for('main.entries') }}" class="btn-filter {% if not filter_type %}active{% endif %}">ทั้งหมด</a>
+  <a href="{{ url_for('main.entries', type='income') }}" class="btn-filter income {% if filter_type == 'income' %}active{% endif %}">รายการเข้า</a>
+  <a href="{{ url_for('main.entries', type='expense') }}" class="btn-filter expense {% if filter_type == 'expense' %}active{% endif %}">รายการออก</a>
+</div>
+
+{% if entries %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>วันที่</th>
+      <th>ประเภท</th>
+      <th>รายการ</th>
+      <th>หมวดหมู่</th>
+      <th class="text-right">จำนวนเงิน</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in entries %}
+    <tr>
+      <td>{{ e.entry_date.strftime('%d/%m/%Y') }}</td>
+      <td><span class="badge {{ e.entry_type }}">{{ "รายการเข้า" if e.entry_type == "income" else "รายการออก" }}</span></td>
+      <td>{{ e.title }}</td>
+      <td>{{ e.category or "—" }}</td>
+      <td class="text-right {{ e.entry_type }}">{{ "%.2f"|format(e.amount) }} บาท</td>
+      <td class="actions">
+        <a href="{{ url_for('main.edit_entry', entry_id=e.id) }}" class="btn-sm">แก้ไข</a>
+        <form method="POST" action="{{ url_for('main.delete_entry', entry_id=e.id) }}" class="inline-form">
+          {{ csrf_token() if csrf_token is defined }}
+          <button type="submit" class="btn-sm danger" onclick="return confirmDelete()">ลบ</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">ไม่พบรายการ{% if filter_type %} สำหรับตัวกรองที่เลือก{% endif %}</p>
+{% endif %}
+{% endblock %}

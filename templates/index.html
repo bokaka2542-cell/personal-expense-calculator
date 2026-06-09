@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}หน้าหลัก — บัญชีส่วนตัว{% endblock %}
+{% block content %}
+<h1 class="page-title">ภาพรวมการเงิน</h1>
+
+<div class="cards">
+  <div class="card income">
+    <div class="card-label">รายรับรวม</div>
+    <div class="card-amount">{{ "%.2f"|format(income) }} บาท</div>
+  </div>
+  <div class="card expense">
+    <div class="card-label">รายจ่ายรวม</div>
+    <div class="card-amount">{{ "%.2f"|format(expense) }} บาท</div>
+  </div>
+  <div class="card balance {% if balance >= 0 %}positive{% else %}negative{% endif %}">
+    <div class="card-label">ยอดคงเหลือ</div>
+    <div class="card-amount">{{ "%.2f"|format(balance) }} บาท</div>
+  </div>
+</div>
+
+<div class="section-header">
+  <h2>รายการล่าสุด</h2>
+  <a href="{{ url_for('main.new_entry') }}" class="btn btn-primary">+ เพิ่มรายการ</a>
+</div>
+
+{% if recent %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>วันที่</th>
+      <th>ประเภท</th>
+      <th>รายการ</th>
+      <th>หมวดหมู่</th>
+      <th class="text-right">จำนวนเงิน</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in recent %}
+    <tr>
+      <td>{{ e.entry_date.strftime('%d/%m/%Y') }}</td>
+      <td><span class="badge {{ e.entry_type }}">{{ "รายการเข้า" if e.entry_type == "income" else "รายการออก" }}</span></td>
+      <td>{{ e.title }}</td>
+      <td>{{ e.category or "—" }}</td>
+      <td class="text-right {{ e.entry_type }}">{{ "%.2f"|format(e.amount) }} บาท</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">ยังไม่มีรายการ — <a href="{{ url_for('main.new_entry') }}">เพิ่มรายการแรก</a></p>
+{% endif %}
+{% endblock %}

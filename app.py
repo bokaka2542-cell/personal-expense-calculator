@@ -1,0 +1,31 @@
+import os
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from config import Config
+
+db = SQLAlchemy()
+
+
+def create_app(test_config=None):
+    app = Flask(__name__)
+    app.config.from_object(Config)
+    if test_config:
+        app.config.update(test_config)
+
+    os.makedirs(os.path.join(app.root_path, "instance"), exist_ok=True)
+
+    db.init_app(app)
+
+    from routes import bp
+    app.register_blueprint(bp)
+
+    with app.app_context():
+        db.create_all()
+
+    return app
+
+
+app = create_app()
+
+if __name__ == "__main__":
+    app.run(debug=True)
